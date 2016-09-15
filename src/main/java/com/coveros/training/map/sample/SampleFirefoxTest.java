@@ -5,10 +5,13 @@ import static org.junit.Assert.assertEquals;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.MarionetteDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
+
+import com.coveros.training.SauceProperties;
 
 import io.github.bonigarcia.wdm.MarionetteDriverManager;
 
@@ -22,13 +25,14 @@ import io.github.bonigarcia.wdm.MarionetteDriverManager;
 public class SampleFirefoxTest {
 	private WebDriver driver;
 
-	static {
-		MarionetteDriverManager.getInstance().setup();
-		// if you didn't update the Path system variable to add the full
-		// directory path to the executable as above mentioned then doing this
-		// directly through code
-
-		System.setProperty("webdriver.gecko.driver", "src/main/resources/geckodriver/geckodriver.exe");
+	@BeforeClass
+	public static void beforeClass(){
+		String os = SauceProperties.getString(SauceProperties.OS);
+		String geckodriver = "geckodriver";
+		if (os.equals("windows")) {
+			geckodriver += ".exe";
+		}
+		System.setProperty("webdriver.gecko.driver", "src/main/resources/geckodriver/" + os + "/" + geckodriver);
 	}
 
 	@Before
