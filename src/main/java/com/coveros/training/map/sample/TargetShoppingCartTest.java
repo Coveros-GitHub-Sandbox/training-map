@@ -8,12 +8,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.MarionetteDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+
+import com.coveros.training.SauceProperties;
 
 public class TargetShoppingCartTest {
 	private WebDriver driver;
@@ -21,9 +26,22 @@ public class TargetShoppingCartTest {
 	private boolean acceptNextAlert = true;
 	private StringBuffer verificationErrors = new StringBuffer();
 
+	@BeforeClass
+	public static void beforeClass() {
+		String os = SauceProperties.getString(SauceProperties.OS);
+		String geckodriver = "geckodriver";
+		if (os.equals("windows")) {
+			geckodriver += ".exe";
+		}
+		System.setProperty("webdriver.gecko.driver", "src/main/resources/geckodriver/" + os + "/" + geckodriver);
+	}
+
 	@Before
 	public void setUp() throws Exception {
-		driver = new FirefoxDriver();
+		// Now you can Initialize marionette driver to launch firefox
+		DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+		capabilities.setCapability("marionette", true);
+		driver = new MarionetteDriver(capabilities);
 		baseUrl = "http://www.target.com";
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
@@ -36,7 +54,7 @@ public class TargetShoppingCartTest {
 		driver.findElement(By.id("searchTerm")).clear();
 		driver.findElement(By.id("searchTerm")).sendKeys("speakers");
 		driver.findElement(By.id("goSearch")).click();
-		if (!waitForElement(By.linkText("Jensen Bluetooth Wireless Stereo Speaker - Black..."))){
+		if (!waitForElement(By.linkText("Jensen Bluetooth Wireless Stereo Speaker - Black..."))) {
 			fail();
 			return;
 		}
@@ -44,9 +62,7 @@ public class TargetShoppingCartTest {
 			if (second >= 60)
 				fail("timeout");
 			try {
-				if (driver
-						.findElement(
-								By.linkText("Jensen Bluetooth Wireless Stereo Speaker - Black..."))
+				if (driver.findElement(By.linkText("Jensen Bluetooth Wireless Stereo Speaker - Black..."))
 						.isDisplayed()) {
 					break;
 				}
@@ -55,9 +71,7 @@ public class TargetShoppingCartTest {
 			}
 			Thread.sleep(1000);
 		}
-		driver.findElement(
-				By.linkText("Jensen Bluetooth Wireless Stereo Speaker - Black..."))
-				.click();
+		driver.findElement(By.linkText("Jensen Bluetooth Wireless Stereo Speaker - Black...")).click();
 		if (waitForElement(By.cssSelector("button.plus"))) {
 			driver.findElement(By.cssSelector("button.plus")).click();
 			driver.findElement(By.cssSelector("button.plus")).click();
@@ -67,10 +81,8 @@ public class TargetShoppingCartTest {
 				if (second >= 60)
 					fail("timeout");
 				try {
-					if (driver
-							.findElement(
-									By.xpath("//div[@id='addtocart']/div/div/div[2]/h3"))
-							.getText().matches("^cart summary[\\s\\S]*$"))
+					if (driver.findElement(By.xpath("//div[@id='addtocart']/div/div/div[2]/h3")).getText()
+							.matches("^cart summary[\\s\\S]*$"))
 						break;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -78,16 +90,10 @@ public class TargetShoppingCartTest {
 				Thread.sleep(1000);
 			}
 
-			assertEquals(
-					"1  item added to cart",
-					driver.findElement(
-							By.xpath("//div[@id='addtocart']/div/div/div/div/h2"))
-							.getText());
+			assertEquals("1  item added to cart",
+					driver.findElement(By.xpath("//div[@id='addtocart']/div/div/div/div/h2")).getText());
 			try {
-				assertEquals(
-						"3",
-						driver.findElement(By.id("cartUpdatedQty_cartItem0001"))
-								.getAttribute("value"));
+				assertEquals("3", driver.findElement(By.id("cartUpdatedQty_cartItem0001")).getAttribute("value"));
 			} catch (Error e) {
 				verificationErrors.append(e.toString());
 			}
