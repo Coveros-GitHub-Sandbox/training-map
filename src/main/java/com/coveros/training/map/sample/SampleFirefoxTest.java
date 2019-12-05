@@ -8,12 +8,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.MarionetteDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 
 import com.coveros.training.SauceProperties;
-
-import io.github.bonigarcia.wdm.MarionetteDriverManager;
 
 /**
  * Simple test class that verifies proper installation of MTW tools and
@@ -32,15 +30,16 @@ public class SampleFirefoxTest {
 		if (os.equals("windows")) {
 			geckodriver += ".exe";
 		}
+		System.setProperty("webdriver.gecko.driver", "src/main/resources/geckodriver/geckodriver.exe" );
 		System.setProperty("webdriver.gecko.driver", "src/main/resources/geckodriver/" + os + "/" + geckodriver);
 	}
 
 	@Before
 	public void setUp() throws Exception {
 		// Now you can Initialize marionette driver to launch firefox
-		DesiredCapabilities capabilities = DesiredCapabilities.firefox();
-		capabilities.setCapability("marionette", true);
-		driver = new MarionetteDriver(capabilities);
+		FirefoxOptions options = new FirefoxOptions();
+		options.setCapability("marionette", true);
+		driver = new FirefoxDriver(options);
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
 

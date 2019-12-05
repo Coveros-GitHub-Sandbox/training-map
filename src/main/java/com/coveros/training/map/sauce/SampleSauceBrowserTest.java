@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -18,6 +19,7 @@ import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -42,6 +44,9 @@ import com.saucelabs.saucerest.SauceREST;
 public class SampleSauceBrowserTest implements SauceOnDemandSessionIdProvider {
 
 	@Rule
+	public TestName testName = new TestName();
+
+	@Rule
 	public TestWatcher failureRule = new TestWatcher() {
 
 		@Override
@@ -50,6 +55,7 @@ public class SampleSauceBrowserTest implements SauceOnDemandSessionIdProvider {
 		}
 
 	};
+	
 	/**
 	 * Constructs a {@link SauceOnDemandAuthentication} instance using the supplied
 	 * user name/access key. To use the authentication supplied by environment
@@ -59,13 +65,7 @@ public class SampleSauceBrowserTest implements SauceOnDemandSessionIdProvider {
 	public SauceOnDemandAuthentication authentication = new SauceOnDemandAuthentication(
 			SauceProperties.getString(SauceProperties.USER_NAME),
 			SauceProperties.getString(SauceProperties.ACCESS_KEY));
-	/**
-	 * JUnit Rule which will mark the Sauce Job as passed/failed when the test
-	 * succeeds or fails.
-	 */
-	@Rule
-	public SauceOnDemandTestWatcher resultReportingTestWatcher = new SauceOnDemandTestWatcher(this, authentication);
-
+	
 	/**
 	 * Represents the browser to be used as part of the test run.
 	 */
@@ -117,8 +117,8 @@ public class SampleSauceBrowserTest implements SauceOnDemandSessionIdProvider {
 	public static LinkedList browsersStrings() {
 		LinkedList browsers = new LinkedList();
 
-		browsers.add(new String[] { "Windows 10", "78.0", "chrome" });
-		browsers.add(new String[] { "Linux", "78.0", "chrome" });
+		browsers.add(new String[] { "Windows 10", "latest", "chrome" });
+		browsers.add(new String[] { "Windows 10", "70.0", "firefox" });
 		browsers.add(new String[] { "macOS 10.14", "12.0", "safari" });
 
 		return browsers;
@@ -138,17 +138,10 @@ public class SampleSauceBrowserTest implements SauceOnDemandSessionIdProvider {
 	public void setUp() throws Exception {
 
 		MutableCapabilities sauceOptions = new MutableCapabilities();
-		sauceOptions.setCapability("name", "Sample Amazon and Google Tests - " + os + ": " + browser + " " + version);
+		sauceOptions.setCapability("name", testName.getMethodName() + " test - " + os + ": " + browser + " " + version);
 
-		MutableCapabilities browserOptions = null;
-//		if (browser.equals("chrome")) {
-//			browserOptions = new ChromeOptions();
-//		} else {
-		browserOptions = new DesiredCapabilities();
-		browserOptions.setCapability(CapabilityType.BROWSER_NAME, browser);
-		
-//		}
-		//
+		MutableCapabilities browserOptions = getBaseBrowserOptions(this.browser);
+
 		if (version != null) {
 			browserOptions.setCapability(CapabilityType.BROWSER_VERSION, version);
 		}
@@ -162,6 +155,16 @@ public class SampleSauceBrowserTest implements SauceOnDemandSessionIdProvider {
 				SauceProperties.getString(SauceProperties.ACCESS_KEY));
 		this.sessionId = (((RemoteWebDriver) driver).getSessionId()).toString();
 
+	}
+
+	private MutableCapabilities getBaseBrowserOptions(String browserName) {
+		if (browserName.equals("firefox")) {
+			return new FirefoxOptions();
+		} else {
+			MutableCapabilities result = new DesiredCapabilities();
+			result.setCapability(CapabilityType.BROWSER_NAME, browser);
+			return result;
+		}
 	}
 
 	/**
