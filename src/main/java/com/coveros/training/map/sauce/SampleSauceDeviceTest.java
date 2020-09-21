@@ -14,10 +14,8 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
-import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -122,7 +120,8 @@ public class SampleSauceDeviceTest implements SauceOnDemandSessionIdProvider {
 
 		browsers.add(new String[] { "iPhone XS Simulator", "iOS", "13.0", "Safari" });
 		browsers.add(new String[] { "Samsung Galaxy Tab S3 GoogleAPI Emulator", "Android", "8.1", "Chrome" });
-		browsers.add(new String[] { "Google Pixel 3 XL GoogleAPI Emulator", "Android", "9.1", "Chrome" });
+		
+		browsers.add(new String[] { "Samsung Galaxy S7 Edge WQHD GoogleAPI Emulator", "Android", "8.0", "Chrome" });
 
 		return browsers;
 	}
